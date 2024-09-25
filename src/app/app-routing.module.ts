@@ -1,14 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { UploadFilesComponent } from './upload-files/upload-files.component';
 import { AppLayoutComponent } from './layout/app.layout.component';
+import { UploadFilesComponent } from './upload-files/upload-files.component'; // Importe o componente diretamente
 
 const routes: Routes = [
   {
     path: '', component: AppLayoutComponent,
     children: [
-      { path: '', component: UploadFilesComponent },
-      // { path: '/file-upload', component: UploadFilesComponent },
+      { path: 'file-upload', component: UploadFilesComponent }, // Use o componente aqui
       // { path: '/', redirectTo: "/file-upload", pathMatch: 'full' }
     ]
   }

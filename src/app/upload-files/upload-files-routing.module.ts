@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { UploadFilesComponent } from './upload-files.component';
+import { UploadFilesComponent } from './upload-files.component'; // Importe o componente que será exibido na rota
 
 @NgModule({
-	imports: [RouterModule.forChild([
-		{ path: '', component: UploadFilesComponent }
-	])],
-	exports: [RouterModule]
+  imports: [RouterModule.forChild([
+    { path: '', component: UploadFilesComponent } // Use o componente em vez do módulo
+  ])],
+  exports: [RouterModule]
 })
-export class UploadFilesRouting { }
+export class UploadFilesRoutingModule { }
