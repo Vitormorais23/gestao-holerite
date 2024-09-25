@@ -7,7 +7,9 @@ const routes: Routes = [
   {
     path: '', component: AppLayoutComponent,
     children: [
-      { path: '', component: UploadFilesComponent }
+      { path: '', component: UploadFilesComponent },
+      // { path: '/file-upload', component: UploadFilesComponent },
+      // { path: '/', redirectTo: "/file-upload", pathMatch: 'full' }
     ]
   }
 ];
