@@ -4,8 +4,8 @@ import { MessageService } from 'primeng/api';
 @Component({
   selector: 'app-upload-files',
   templateUrl: './upload-files.component.html',
-  styleUrl: './upload-files.component.scss'
-  // providers: [MessageService]
+  styleUrl: './upload-files.component.scss',
+  providers: [MessageService]
 })
 export class UploadFilesComponent implements OnInit {
 
