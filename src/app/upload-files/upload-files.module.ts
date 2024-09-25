@@ -5,7 +5,6 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { UploadFilesRoutingModule } from './upload-files-routing.module';
 import { UploadFilesComponent } from './upload-files.component';
 
-
 @NgModule({
 	declarations: [UploadFilesComponent],
 	imports: [
