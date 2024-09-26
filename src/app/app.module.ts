@@ -7,18 +7,8 @@ import { UploadFilesModule } from './upload-files/upload-files.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideStorage, getStorage } from '@angular/fire/storage';
+import { environments } from './environments/environments';
 
-// Configurações do Firebase (copiadas do Firebase Console)
-const firebaseConfig = {
-  projectId: "gestao-de-holerite",
-  appId: "1:739116739972:web:d9de3cdac9f936355e01d1",
-  storageBucket: "gestao-de-holerite.appspot.com",
-  locationId: "southamerica-east1",
-  apiKey: "AIzaSyBdmfYajolV6BtfGoBbErX-Hrjupd_vom0",
-  authDomain: "gestao-de-holerite.firebaseapp.com",
-  messagingSenderId: "739116739972",
-  measurementId: "G-BE724DMCE0"
-};
 
 @NgModule({
   declarations: [
@@ -35,7 +25,7 @@ const firebaseConfig = {
     CUSTOM_ELEMENTS_SCHEMA
   ],
   providers: [
-    provideFirebaseApp(() => initializeApp(firebaseConfig)),
+    provideFirebaseApp(() => initializeApp(environments.firebaseConfig)),
     provideStorage(() => getStorage())
   ],
   bootstrap: [AppComponent]

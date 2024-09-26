@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { uploadBytes } from '@angular/fire/storage';
-import { getStorage, ref } from 'firebase/storage';
+import { Component, OnInit, inject } from '@angular/core';
+import { uploadBytes, Storage } from '@angular/fire/storage';
+import { ref } from 'firebase/storage';
 import { MessageService } from 'primeng/api';
+import { FileUploadHandlerEvent } from 'primeng/fileupload';
 
 
 @Component({
@@ -17,15 +18,17 @@ export class UploadFilesComponent implements OnInit {
 
   uploadedFiles: any[] = [];
 
-  private storage = getStorage() // Inicializar o Firebase Storage
-
-  constructor(private messageService: MessageService) { }
+  
+  constructor(
+    private messageService: MessageService,
+    private storage: Storage // Inicializar o Firebase Storage
+  ) { }
 
   ngOnInit() { }
 
-  onUpload(event: any) {
+  uploadHandler(event: FileUploadHandlerEvent) {
 
-    for (const file of event.file) {
+    for (const file of event.files) {
       this.uploadedFiles.push(file) // adicionar na lista
 
       // criar uma referencia no storage
