@@ -36,13 +36,13 @@ export class UploadFilesComponent implements OnInit {
         this.messages = []
         this.messages.push({ 
           severity: 'success',
-          detail: `Arquivo ${file.name} enviado com sucesso` 
+          detail: `${event.files.length === 1 ? 'Arquivo enviado' :  'Arquivos enviados'} com sucesso!` 
         })
       }).catch((error) => {
         this.messages = []
         this.messages.push({ 
           severity: 'error', 
-          detail: `Erro ao enviar o arquivo ${file.name}` 
+          detail: `Erro ao enviar ${event.files.length === 1 ? 'o arquivo!' :  'os arquivos!'}` 
         })
       })
     }
