@@ -1,7 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { uploadBytes, Storage } from '@angular/fire/storage';
 import { ref } from 'firebase/storage';
-import { MessageService } from 'primeng/api';
+import { Message, MessageService } from 'primeng/api';
+import { MessagesModule } from 'primeng/messages';
 import { FileUploadHandlerEvent } from 'primeng/fileupload';
 
 
@@ -9,23 +10,19 @@ import { FileUploadHandlerEvent } from 'primeng/fileupload';
   selector: 'app-upload-files',
   templateUrl: './upload-files.component.html',
   styleUrl: './upload-files.component.scss',
-  providers: [MessageService]
+  providers: [MessageService, MessagesModule]
 })
 export class UploadFilesComponent implements OnInit {
-
-
-
-
   uploadedFiles: any[] = [];
-
+  messages: Message[] = [];
   
   constructor(
     private messageService: MessageService,
     private storage: Storage // Inicializar o Firebase Storage
   ) { }
-
+  
   ngOnInit() { }
-
+  
   uploadHandler(event: FileUploadHandlerEvent) {
 
     for (const file of event.files) {
@@ -36,20 +33,20 @@ export class UploadFilesComponent implements OnInit {
 
       // fazer upload do arquivo
       uploadBytes(fileRef, file).then((snapshot) => {
-        this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Arquivo ${file.name} enviado com sucesso' })
+        this.messages = []
+        this.messages.push({ 
+          severity: 'success',
+          detail: `Arquivo ${file.name} enviado com sucesso` 
+        })
       }).catch((error) => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Erro ao enviar o arquivo ${file.name}' })
+        this.messages = []
+        this.messages.push({ 
+          severity: 'error', 
+          detail: `Erro ao enviar o arquivo ${file.name}` 
+        })
       })
     }
 
-    // for (const file of event.files) {
-    //   this.uploadedFiles.push(file);
-    // }
-
-    // this.messageService.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded' });
+    this.messages = this.messages ?? []
   }
-
-  // onBasicUpload() {
-  //   this.messageService.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded with Basic Mode' });
-  // }
 }
