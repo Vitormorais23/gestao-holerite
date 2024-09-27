@@ -22,10 +22,34 @@ export class UploadFilesComponent implements OnInit {
   ) { }
   
   ngOnInit() { }
+
+  validatePdfFile(file: File): boolean {
+    const fileName = file.name.toLowerCase();
+    
+    // verificar se o arquivo é um PDF
+    if (file.type !== 'application/pdf') {
+      this.messages.push({ severity: 'error', detail: 'O arquivo deve ser um PDF.' });
+      return false;
+    }
+
+    // Verifica se o nome do arquivo começa com o que preciso
+    if (!fileName.startsWith('empresa-holerite-mat')) {
+      this.messages.push({ severity: 'error', detail: 'O arquivo deve começar com "empresa-holerite-mat".' });
+      return false;
+    }
+
+    return true;
+  }
   
   uploadHandler(event: FileUploadHandlerEvent) {
 
     for (const file of event.files) {
+
+      // validar o arquivo
+      if (!this.validatePdfFile(file)) {
+        continue; // Se não passar pela validação vai pular o up
+      }
+
       this.uploadedFiles.push(file) // adicionar na lista
       
       // criar uma referencia no storage
@@ -45,6 +69,7 @@ export class UploadFilesComponent implements OnInit {
           detail: `Erro ao enviar ${event.files.length === 1 ? 'o arquivo!' :  'os arquivos!'}` 
         })
       }),
+      // pega a URL
       getDownloadURL(fileRef).then((url) => {
         console.log(url)
       })
@@ -52,8 +77,5 @@ export class UploadFilesComponent implements OnInit {
 
     this.messages = this.messages ?? []
   }
-}
-function resolve(downloadURL: string) {
-  throw new Error('Function not implemented.');
 }
 

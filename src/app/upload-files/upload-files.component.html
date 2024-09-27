@@ -1,7 +1,7 @@
 <div class="grid">
     <div class="col-12">
         <div class="card">
-            <h5>Advanced</h5>
+            <h5>Upload de Arquivos PDF</h5>
             <p-fileUpload 
                 name="demo[]" 
                 [customUpload]="true" 
@@ -9,11 +9,6 @@
                 [multiple]="true" 
                 accept="application/pdf" 
                 [maxFileSize]="1000000">
-                <!-- <ng-template pTemplate="content">
-                    <ul *ngIf="uploadedFiles.length">
-                        <li *ngFor="let file of uploadedFiles">{{file.name}} - {{file.size}} bytes</li>
-                    </ul>
-                </ng-template> -->
             </p-fileUpload>
             <div class="card">
                 <p-messages 
