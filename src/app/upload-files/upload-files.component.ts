@@ -1,6 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { uploadBytes, Storage } from '@angular/fire/storage';
-import { ref } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { Message, MessageService } from 'primeng/api';
 import { MessagesModule } from 'primeng/messages';
 import { FileUploadHandlerEvent } from 'primeng/fileupload';
@@ -27,7 +27,7 @@ export class UploadFilesComponent implements OnInit {
 
     for (const file of event.files) {
       this.uploadedFiles.push(file) // adicionar na lista
-
+      
       // criar uma referencia no storage
       const fileRef = ref(this.storage, file.name)
 
@@ -44,9 +44,16 @@ export class UploadFilesComponent implements OnInit {
           severity: 'error', 
           detail: `Erro ao enviar ${event.files.length === 1 ? 'o arquivo!' :  'os arquivos!'}` 
         })
+      }),
+      getDownloadURL(fileRef).then((url) => {
+        console.log(url)
       })
     }
 
     this.messages = this.messages ?? []
   }
 }
+function resolve(downloadURL: string) {
+  throw new Error('Function not implemented.');
+}
+
