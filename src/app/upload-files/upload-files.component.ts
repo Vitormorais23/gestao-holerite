@@ -13,13 +13,17 @@ import { FileUploadHandlerEvent } from 'primeng/fileupload';
   providers: [MessageService, MessagesModule]
 })
 export class UploadFilesComponent implements OnInit {
-  uploadedFiles: any[] = [];
+  uploadedFiles: File[] = [];
   messages: Message[] = [];
 
   constructor(
     private messageService: MessageService,
     private storage: Storage // Inicializar o Firebase Storage
   ) { }
+
+  choose(event: FileUploadHandlerEvent, callback: () => void) {
+    callback()
+  }
 
   ngOnInit() { }
 
@@ -45,38 +49,44 @@ export class UploadFilesComponent implements OnInit {
 
   async uploadHandler(event: FileUploadHandlerEvent) {
 
-    for (const file of event.files) {
+    for (let file of event.files) {
 
       if (!this.validatePdfFile(file)) {
-        continue; // Se não passar pela validação vai pular o up
+        continue; // Se não passar pela validação vai pular o upload
       }
 
       this.uploadedFiles.push(file) // adicionar na lista
 
-      // criar uma referencia no storage
-      const fileRef = ref(this.storage, file.name)
+      try {
+        // Criar uma referência no storage
+        const fileRef = ref(this.storage, file.name);
 
-      // Fazer o upload com acompanhamento de progresso
-      const task = uploadBytesResumable(fileRef, file)
+        // Fazer o upload com acompanhamento de progresso
+        const task = uploadBytesResumable(fileRef, file);
 
-      task.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Progresso: ${progress}%`);
-
-        },
-        (_error) => {
-          this.messages.push({ severity: 'error', detail: `Erro ao enviar o arquivo: ${file.name}.` });
-        },
-        async () => {
-          // pegar a URL
-          const downloadURL = await getDownloadURL(task.snapshot.ref)
-          console.log(`Arquivo disponivel para download: ${downloadURL}`)
-          this.messages = []
-          this.messages.push({ severity: 'success', detail: `${event.files.length === 1 ? 'Arquivo enviado' :  'Arquivos enviados'} com sucesso!`});
-        }
-      )
+        task.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log(`Progresso: ${progress}%`);
+          },
+          (_error) => {
+            this.messages.push({ severity: 'error', detail: `Erro ao enviar o arquivo: ${file.name}.` });
+          },
+          async () => {
+            // Pegar a URL do arquivo após o upload
+            const downloadURL = await getDownloadURL(task.snapshot.ref);
+            console.log(`Arquivo disponível para download: ${downloadURL}`);
+            this.messages = [];
+            this.messages.push({ severity: 'success', detail: `${this.uploadedFiles.length === 1 ? 'Arquivo enviado' : 'Arquivos enviados'} com sucesso!` });
+          }
+        );
+      } catch (error) {
+        console.error("Erro durante o upload:", error);
+        this.messages.push({ severity: 'error', detail: `Erro inesperado durante o upload do arquivo: ${file.name}` });
+      }
     }
-    this.messages = this.messages ?? []
+
+    console.log('Upload finalizado');
   }
+
 }
