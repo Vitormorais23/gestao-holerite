@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Storage } from '@angular/fire/storage';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
-import { Message, MessageService } from 'primeng/api';
-import { MessagesModule } from 'primeng/messages';
+import { Message, MessageService, PrimeNGConfig } from 'primeng/api';
 import { FileUploadHandlerEvent } from 'primeng/fileupload';
 
 
@@ -10,22 +9,41 @@ import { FileUploadHandlerEvent } from 'primeng/fileupload';
   selector: 'app-upload-files',
   templateUrl: './upload-files.component.html',
   styleUrl: './upload-files.component.scss',
-  providers: [MessageService, MessagesModule]
+  providers: [MessageService]
 })
 export class UploadFilesComponent implements OnInit {
   uploadedFiles: File[] = [];
   messages: Message[] = [];
+  totalSize: number = 0;
+  totalSizePercent: number = 0;
+  msgs: Message[] = [];
 
   constructor(
-    private messageService: MessageService,
+    private config: PrimeNGConfig,
     private storage: Storage // Inicializar o Firebase Storage
   ) { }
+
+  ngOnInit() { }
 
   choose(event: FileUploadHandlerEvent, callback: () => void) {
     callback()
   }
 
-  ngOnInit() { }
+  onSelectedFiles(event: any) {
+
+  }
+
+  onRemoveTemplatingFile(event: any, file: { size: any; }, removeFileCallback: (arg0: any, arg1: any) => void, ind: any) {
+    removeFileCallback(event, ind);
+    this.totalSize -= parseInt(this.formatSize(file.size));
+    this.totalSizePercent = this.totalSize / 10;
+  }
+
+  onClearTemplatingUpload(clear: () => void) {
+    clear();
+    this.totalSize = 0;
+    this.totalSizePercent = 0;
+  }
 
   validatePdfFile(file: File): boolean {
     const fileName = file.name.toLowerCase();
@@ -85,8 +103,20 @@ export class UploadFilesComponent implements OnInit {
         this.messages.push({ severity: 'error', detail: `Erro inesperado durante o upload do arquivo: ${file.name}` });
       }
     }
-
     console.log('Upload finalizado');
+  }
+
+  formatSize(bytes: number): string {
+    const k = 1024;
+    const dm = 2;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+  
+    if (bytes === 0) return '0 B';
+  
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    const formattedSize = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
+  
+    return `${formattedSize} ${sizes[i]}`;
   }
 
 }

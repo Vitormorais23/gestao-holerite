@@ -1,13 +1,14 @@
 <div class="grid">
     <div class="col-12">
         <div class="card">
+            <p-toast />
             <h5>Upload de Arquivos PDF</h5>
             <p-fileUpload 
                 name="demo[]" 
                 [multiple]="true" 
                 accept="application/pdf" 
                 [customUpload]="true"
-                (uploadHandler)="uploadHandler($event)"
+                (onSelect)="onSelectedFiles($event)"
                 [maxFileSize]="1000000">
 
                 <ng-template 
@@ -20,22 +21,68 @@
                                 label="Selecionar Arquivos"
                                 icon="pi pi-images" />
                             <p-button 
-                                (click)="uploadHandler(files)"
+                                (onClick)="uploadHandler(files)"
                                 label="Upload"
                                 icon="pi pi-cloud-upload"
                                 severity="success" 
                                 [disabled]="!files || files.length === 0" />
-                            <p-button (click)="clearCallback()"
+                            <p-button (onClick)="clearCallback()"
                                 label="Limpar"
                                 icon="pi pi-times"
                                 severity="danger" 
                                 [disabled]="!files || files.length === 0" />
                         </div>
-                        <!-- <p-progressBar [value]="totalSizePercent" [showValue]="false" styleClass="md:w-20rem h-1rem w-full md:ml-auto" [ngClass]="{ 'exceeded-progress-bar': totalSizePercent > 100 }">
-                            <span class="white-space-nowrap">{{ totalSize }}B / 1Mb</span>
-                        </p-progressBar> -->
                     </div>
                 </ng-template>
+                <ng-template
+                pTemplate="content"
+                let-files
+                let-uploadedFiles="uploadedFiles"
+                let-removeFileCallback="removeFileCallback"
+                let-removeUploadedFileCallback="removeUploadedFileCallback"
+                let-index="index">
+                <div *ngIf="files?.length > 0">
+                    <h5>Pending</h5>
+                    <div class="flex flex-wrap p-0 sm:p-2 align-items-center justify-content-between gap-2">
+                        <div
+                            *ngFor="let file of files; let i = index"
+                            class="cardFiles flex border-1 surface-border align-items-center justify-content-between gap-3">
+                            <div class="flex-column">
+                                <span class="font-semibold">{{ file.name }}</span>
+                                <div>{{ formatSize(file.size) }}</div>
+                            </div>
+                            <p-button
+                            icon="pi pi-times"
+                            (onClick)="onRemoveTemplatingFile($event, file, removeFileCallback, index)"
+                            [outlined]="true"
+                            [rounded]="true"
+                            severity="danger"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="uploadedFiles?.length > 0">
+                    <h5>Completed</h5>
+                    <div class="flex flex-wrap p-0 sm:p-2 align-items-center justify-content-between gap-2">
+                        <div
+                        *ngFor="let file of uploadedFiles; let i = index"
+                        class="cardFiles flex border-1 surface-border align-items-center justify-content-between gap-3">
+                        <div class="flex-column">
+                            <span class="font-semibold">{{ file.name }}</span>
+                            <div>{{ formatSize(file.size) }}</div>
+                        </div>
+                        <p-button
+                        icon="pi pi-times"
+                        (onClick)="removeUploadedFileCallback(index)"
+                        [outlined]="true"
+                        [rounded]="true"
+                        severity="danger"
+                        />
+                    </div>
+                    </div>
+                </div>
+                </ng-template>
+            <ng-template pTemplate="file"> </ng-template>
             </p-fileUpload>
             <div class="card">
                 <p-messages 
