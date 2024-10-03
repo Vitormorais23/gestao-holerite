@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, viewChild } from '@angular/core';
 import { Storage } from '@angular/fire/storage';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { Message, MessageService, PrimeNGConfig } from 'primeng/api';
-import { FileUploadHandlerEvent } from 'primeng/fileupload';
+import { FileUpload, FileUploadHandlerEvent } from 'primeng/fileupload';
+import { Messages } from 'primeng/messages';
 
 
 @Component({
@@ -11,25 +12,50 @@ import { FileUploadHandlerEvent } from 'primeng/fileupload';
   styleUrl: './upload-files.component.scss',
   providers: [MessageService]
 })
+
 export class UploadFilesComponent implements OnInit {
-  uploadedFiles: File[] = [];
+  files: File[] = [];
   messages: Message[] = [];
   totalSize: number = 0;
   totalSizePercent: number = 0;
   msgs: Message[] = [];
+
+ @ViewChild(FileUpload) fileUploader: FileUpload | undefined;
 
   constructor(
     private config: PrimeNGConfig,
     private storage: Storage // Inicializar o Firebase Storage
   ) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+    
+  }
+  
 
   choose(event: FileUploadHandlerEvent, callback: () => void) {
     callback()
   }
 
   onSelectedFiles(event: any) {
+    // this.files = event.currentFiles;
+    //     this.files.forEach((file) => {
+    //         this.totalSize += parseInt(this.formatSize(file.size));
+    //     });
+    //     this.totalSizePercent = this.totalSize / 10;
+    event.currentFiles.forEach((file: File, index: any) => {
+      if (this.validatePdfFile(file)) {
+        event.currentFiles.splice(index, 1);
+        // Verifica se fileUploader existe antes de tentar adicionar a mensagem
+        if (this.fileUploader && this.fileUploader.msgs) {
+          this.fileUploader.msgs.push({
+            severity: 'error',
+            detail: `O arquivo ${file.name} está fora do PADRÃO.`,
+          });
+        } else {
+          console.error("fileUploader ou msgs não está definido.");
+        }
+      }
+    });
 
   }
 
@@ -46,34 +72,15 @@ export class UploadFilesComponent implements OnInit {
   }
 
   validatePdfFile(file: File): boolean {
-    const fileName = file.name.toLowerCase();
-
-    // verificar se o arquivo é um PDF
-    if (file.type !== 'application/pdf') {
-      this.messages = []
-      this.messages.push({ severity: 'error', detail: 'O arquivo deve ser um PDF.' });
-      return false;
-    }
-
     // Verifica se o nome do arquivo começa com o que preciso
-    if (!fileName.startsWith('empresa-holerite-mat')) {
-      this.messages = []
-      this.messages.push({ severity: 'error', detail: 'O arquivo deve começar com "empresa-holerite-mat".' });
-      return false;
-    }
-
-    return true;
+    return !file.name.startsWith('empresa-holerite-mat')
   }
 
   async uploadHandler(event: FileUploadHandlerEvent) {
 
     for (let file of event.files) {
 
-      if (!this.validatePdfFile(file)) {
-        continue; // Se não passar pela validação vai pular o upload
-      }
-
-      this.uploadedFiles.push(file) // adicionar na lista
+      this.files.push(file) // adicionar na lista
 
       try {
         // Criar uma referência no storage
@@ -95,7 +102,7 @@ export class UploadFilesComponent implements OnInit {
             const downloadURL = await getDownloadURL(task.snapshot.ref);
             console.log(`Arquivo disponível para download: ${downloadURL}`);
             this.messages = [];
-            this.messages.push({ severity: 'success', detail: `${this.uploadedFiles.length === 1 ? 'Arquivo enviado' : 'Arquivos enviados'} com sucesso!` });
+            this.messages.push({ severity: 'success', detail: `${this.files.length === 1 ? 'Arquivo enviado' : 'Arquivos enviados'} com sucesso!` });
           }
         );
       } catch (error) {
