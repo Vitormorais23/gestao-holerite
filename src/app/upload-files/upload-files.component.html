@@ -19,7 +19,7 @@
                             <p-button 
                                 (onClick)="choose(files, chooseCallback)"
                                 label="Selecionar Arquivos"
-                                icon="pi pi-images" />
+                                icon="pi pi-file" />
                             <p-button 
                                 (onClick)="uploadHandler(files)"
                                 label="Upload"
@@ -34,64 +34,51 @@
                         </div>
                     </div>
                 </ng-template>
+
                 <ng-template
-                pTemplate="content"
-                let-files
-                let-uploadedFiles="uploadedFiles"
-                let-removeFileCallback="removeFileCallback"
-                let-removeUploadedFileCallback="removeUploadedFileCallback"
-                let-index="index">
-                <p-progressBar mode="indeterminate" [style]="{ height: '3px' }" />
-                <div *ngIf="files?.length > 0">
-                    <h5>Pending</h5>
-                    <div class="flex flex-wrap p-0 sm:p-2 align-items-center justify-content-between gap-2">
-                        <div
-                            *ngFor="let file of files; let i = index"
-                            class="cardFiles flex border-1 surface-border align-items-center justify-content-between gap-3">
-                            <div class="flex-column">
-                                <span class="font-semibold">{{ file.name }}</span>
-                                <div>{{ formatSize(file.size) }}</div>
-                            </div>
-                            <p-button
-                            icon="pi pi-times"
-                            (onClick)="onRemoveTemplatingFile($event, file, removeFileCallback, index)"
-                            [outlined]="true"
-                            [rounded]="true"
-                            severity="danger"
-                            />
-                        </div>
-                    </div>
-                </div>
-                <div *ngIf="uploadedFiles?.length > 0">
-                    <h5>Completed</h5>
-                    <div class="flex flex-wrap p-0 sm:p-2 align-items-center justify-content-between gap-2">
-                        <div
-                        *ngFor="let file of uploadedFiles; let i = index"
-                        class="cardFiles flex border-1 surface-border align-items-center justify-content-between gap-3">
-                        <div class="flex-column">
-                            <span class="font-semibold">{{ file.name }}</span>
-                            <div>{{ formatSize(file.size) }}</div>
-                        </div>
-                        <p-button
-                        icon="pi pi-times"
-                        (onClick)="removeUploadedFileCallback(index)"
-                        [outlined]="true"
-                        [rounded]="true"
-                        severity="danger"
+                    pTemplate="content"
+                    let-files
+                    let-uploadedFiles="uploadedFiles"
+                    let-removeFileCallback="removeFileCallback"
+                    let-removeUploadedFileCallback="removeUploadedFileCallback"
+                    let-index="index">
+                    <p-progressBar *ngIf="isUploading" mode="indeterminate" [style]="{ height: '3px' }" />
+                    <div *ngIf="files?.length > 0">
+                        <p-messages [(value)]="messages" 
+                        [showTransitionOptions]="'500ms'" 
+                        [hideTransitionOptions]="'500ms'"
+                        [enableService]="false" 
                         />
+                        <!-- <h5>Pendente</h5> -->
+                        <div class="flex flex-wrap p-0 sm:p-2 align-items-center justify-content-between gap-2">
+                            <div
+                                *ngFor="let file of files; let i = index"
+                                class="cardFiles flex border-1 surface-border align-items-center justify-content-between gap-3">
+                                <div class="flex-column">
+                                    <span class="font-semibold">{{ file.name }}</span>
+                                    <div>{{ formatSize(file.size) }}</div>
+                                </div>
+                                <p-button
+                                icon="pi pi-times"
+                                (onClick)="onRemoveTemplatingFile($event, file, removeFileCallback, i)"
+                                [outlined]="true"
+                                [rounded]="true"
+                                severity="danger"
+                                />
+                            </div>
+                        </div>
                     </div>
+                    <div *ngIf="uploadCompleted">
+                        <p-messages [(value)]="messages" 
+                        [showTransitionOptions]="'500ms'" 
+                        [hideTransitionOptions]="'500ms'" 
+                        [enableService]="false"  
+                        />
+                        <!-- <h5>Concluído</h5> -->
                     </div>
-                </div>
                 </ng-template>
-            <ng-template pTemplate="file"> </ng-template>
+                <ng-template pTemplate="file"> </ng-template>
             </p-fileUpload>
-            <!-- <div class="card">
-                <p-messages 
-                    [(value)]="messages" 
-                    [showTransitionOptions]="'500ms'" 
-                    [hideTransitionOptions]="'500ms'"
-                    [enableService]="false" />
-            </div> -->
         </div>
     </div>
 </div>

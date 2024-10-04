@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, viewChild } from '@angular/core';
 import { Storage } from '@angular/fire/storage';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import { event } from 'jquery';
 import { Message, MessageService, PrimeNGConfig } from 'primeng/api';
 import { FileUpload, FileUploadHandlerEvent } from 'primeng/fileupload';
 import { Messages } from 'primeng/messages';
@@ -19,6 +20,8 @@ export class UploadFilesComponent implements OnInit {
   totalSize: number = 0;
   totalSizePercent: number = 0;
   msgs: Message[] = [];
+  uploadCompleted: boolean = false;
+  isUploading: boolean = false;
 
  @ViewChild(FileUpload) fileUploader: FileUpload | undefined;
 
@@ -27,21 +30,16 @@ export class UploadFilesComponent implements OnInit {
     private storage: Storage // Inicializar o Firebase Storage
   ) { }
 
-  ngOnInit() {
-    
-  }
+  ngOnInit() { }
   
-
   choose(event: FileUploadHandlerEvent, callback: () => void) {
     callback()
+    this.messages = [
+      { severity: 'info', detail: `${this.files.length === 1 ? 'Arquivo pronto para upload.' : 'Arquivos prontos para upload.'}` },
+    ];
   }
 
   onSelectedFiles(event: any) {
-    // this.files = event.currentFiles;
-    //     this.files.forEach((file) => {
-    //         this.totalSize += parseInt(this.formatSize(file.size));
-    //     });
-    //     this.totalSizePercent = this.totalSize / 10;
     event.currentFiles.forEach((file: File, index: any) => {
       if (this.validatePdfFile(file)) {
         event.currentFiles.splice(index, 1);
@@ -59,16 +57,16 @@ export class UploadFilesComponent implements OnInit {
 
   }
 
-  onRemoveTemplatingFile(event: any, file: { size: any; }, removeFileCallback: (arg0: any, arg1: any) => void, ind: any) {
-    removeFileCallback(event, ind);
-    this.totalSize -= parseInt(this.formatSize(file.size));
-    this.totalSizePercent = this.totalSize / 10;
+  removeFileCallback(event: any, index: number) {
+    this.files.splice(index, 1); // Remove o arquivo pelo índice
+  }
+
+  onRemoveTemplatingFile(event: any, file: { size: any; }, removeFileCallback: (arg0: any, arg1: any) => void, index: any) {
+    removeFileCallback(event, index);
   }
 
   onClearTemplatingUpload(clear: () => void) {
     clear();
-    this.totalSize = 0;
-    this.totalSizePercent = 0;
   }
 
   validatePdfFile(file: File): boolean {
@@ -76,9 +74,11 @@ export class UploadFilesComponent implements OnInit {
     return !file.name.startsWith('empresa-holerite-mat')
   }
 
-  async uploadHandler(event: FileUploadHandlerEvent) {
+ 
 
-    for (let file of event.files) {
+  async uploadHandler(files: File[]) {
+
+    for (let file of files) {
 
       this.files.push(file) // adicionar na lista
 
@@ -95,22 +95,40 @@ export class UploadFilesComponent implements OnInit {
             console.log(`Progresso: ${progress}%`);
           },
           (_error) => {
-            this.messages.push({ severity: 'error', detail: `Erro ao enviar o arquivo: ${file.name}.` });
+            if (this.fileUploader && this.fileUploader.msgs) {
+            this.fileUploader.msgs.push({ severity: 'error', detail: `Erro ao enviar o arquivo: ${file.name}.` });
+            }
           },
           async () => {
             // Pegar a URL do arquivo após o upload
             const downloadURL = await getDownloadURL(task.snapshot.ref);
             console.log(`Arquivo disponível para download: ${downloadURL}`);
-            this.messages = [];
-            this.messages.push({ severity: 'success', detail: `${this.files.length === 1 ? 'Arquivo enviado' : 'Arquivos enviados'} com sucesso!` });
+            // if (this.fileUploader && this.fileUploader.msgs) {
+            //   this.fileUploader.msgs.push({ severity: 'success', detail: `${this.files.length === 1 ? 'Arquivo enviado' : 'Arquivos enviados'} com sucesso!` });
+            // }
           }
         );
       } catch (error) {
         console.error("Erro durante o upload:", error);
-        this.messages.push({ severity: 'error', detail: `Erro inesperado durante o upload do arquivo: ${file.name}` });
+        if (this.fileUploader && this.fileUploader.msgs) {
+          this.fileUploader.msgs.push({ severity: 'error', detail: `Erro inesperado durante o upload do arquivo: ${file.name}` });
+        }
       }
     }
-    console.log('Upload finalizado');
+    // Barra de upload simulada
+    this.isUploading = true;
+    setTimeout(() => {
+      this.isUploading = false;
+
+      this.uploadCompleted = true;
+      this.messages = [
+        { severity: 'success', detail: `${this.files.length === 1 ? 'Arquivo enviado' : 'Arquivos enviados'} com sucesso!` },
+      ];
+      setTimeout(() => {
+        this.uploadCompleted = false;
+      }, 5000);
+      files.length = 0
+    }, 3000);
   }
 
   formatSize(bytes: number): string {
