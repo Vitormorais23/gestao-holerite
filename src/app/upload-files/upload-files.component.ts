@@ -22,6 +22,7 @@ export class UploadFilesComponent implements OnInit {
   msgs: Message[] = [];
   uploadCompleted: boolean = false;
   isUploading: boolean = false;
+  messageSuccess: string = '';
 
  @ViewChild(FileUpload) fileUploader: FileUpload | undefined;
 
@@ -103,9 +104,6 @@ export class UploadFilesComponent implements OnInit {
             // Pegar a URL do arquivo após o upload
             const downloadURL = await getDownloadURL(task.snapshot.ref);
             console.log(`Arquivo disponível para download: ${downloadURL}`);
-            // if (this.fileUploader && this.fileUploader.msgs) {
-            //   this.fileUploader.msgs.push({ severity: 'success', detail: `${this.files.length === 1 ? 'Arquivo enviado' : 'Arquivos enviados'} com sucesso!` });
-            // }
           }
         );
       } catch (error) {
@@ -121,12 +119,11 @@ export class UploadFilesComponent implements OnInit {
       this.isUploading = false;
 
       this.uploadCompleted = true;
-      this.messages = [
-        { severity: 'success', detail: `${this.files.length === 1 ? 'Arquivo enviado' : 'Arquivos enviados'} com sucesso!` },
-      ];
+      this.messageSuccess = `${this.files.length === 1 ? 'Arquivo enviado' : 'Arquivos enviados'} com sucesso!`;
+      
       setTimeout(() => {
         this.uploadCompleted = false;
-      }, 5000);
+      }, 10000);
       files.length = 0
     }, 3000);
   }

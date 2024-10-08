@@ -68,13 +68,10 @@
                             </div>
                         </div>
                     </div>
-                    <div *ngIf="uploadCompleted">
-                        <p-messages [(value)]="messages" 
-                        [showTransitionOptions]="'500ms'" 
-                        [hideTransitionOptions]="'500ms'" 
-                        [enableService]="false"  
-                        />
-                        <!-- <h5>Concluído</h5> -->
+                    <div class="flex align-items-center justify-content-center flex-column gap-2" *ngIf="uploadCompleted">
+                        <img src="../../assets/layout/images/correto.webp" alt="simbolo de correto ou sucesso" width="200px">
+                        <p style="color: #7ac043; font-size: 20px; font-weight: bold;">ENVIO CONCLUÍDO!</p>
+                        <p>{{messageSuccess}}</p>
                     </div>
                 </ng-template>
                 <ng-template pTemplate="file"> </ng-template>
