@@ -35,15 +35,19 @@ export class UploadFilesComponent implements OnInit {
   
   choose(event: FileUploadHandlerEvent, callback: () => void) {
     callback()
-    this.messages = [
-      { severity: 'info', detail: `${this.files.length === 1 ? 'Arquivo pronto para upload.' : 'Arquivos prontos para upload.'}` },
-    ];
+    // this.messages = [
+    //   { severity: 'info', detail: `${this.files.length === 1 ? 'Arquivo pronto para upload.' : 'Arquivos prontos para upload.'}` },
+    // ];
   }
 
   onSelectedFiles(event: any) {
-    event.currentFiles.forEach((file: File, index: any) => {
-      if (this.validatePdfFile(file)) {
+    // Iterar sobre os arquivos ao contrário para evitar problemas ao remover itens durante a iteração
+    for (let index = event.currentFiles.length - 1; index >= 0; index--) {
+      const file = event.currentFiles[index];
+      if (!this.validatePdfFile(file)) {
+        // Remove o arquivo que não passou na validação
         event.currentFiles.splice(index, 1);
+  
         // Verifica se fileUploader existe antes de tentar adicionar a mensagem
         if (this.fileUploader && this.fileUploader.msgs) {
           this.fileUploader.msgs.push({
@@ -54,8 +58,7 @@ export class UploadFilesComponent implements OnInit {
           console.error("fileUploader ou msgs não está definido.");
         }
       }
-    });
-
+    }
   }
 
   removeFileCallback(event: any, index: number) {
@@ -71,8 +74,11 @@ export class UploadFilesComponent implements OnInit {
   }
 
   validatePdfFile(file: File): boolean {
-    // Verifica se o nome do arquivo começa com o que preciso
-    return !file.name.startsWith('empresa-holerite-mat')
+     // Define o padrão de nome de arquivo com base nas especificações
+     const padrao = /^(\d{2})-(0[1-9]|1[0-2])-(\d{4})-(M|PLR|13Adiantamento|13Integral|Ferias)-(\d+)-.+\.pdf$/;
+       
+    // Testa o nome do arquivo contra o padrão
+    return padrao.test(file.name);
   }
 
  
