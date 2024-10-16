@@ -74,14 +74,12 @@ export class UploadFilesComponent implements OnInit {
   }
 
   validatePdfFile(file: File): boolean {
-     // Define o padrão de nome de arquivo com base nas especificações
-     const padrao = /^(\d{2})-(0[1-9]|1[0-2])-(\d{4})-(M|PLR|13Adiantamento|13Integral|Ferias)-(\d+)-.+\.pdf$/;
+    // Define o padrão de nome de arquivo com base nas especificações
+    const padrao = /^(\d{2})-(0[1-9]|1[0-2])-(\d{4})-(M|PLR|13Adiantamento|13Integral|Ferias)-(\d+)-.+\.pdf$/;
        
     // Testa o nome do arquivo contra o padrão
     return padrao.test(file.name);
   }
-
- 
 
   async uploadHandler(files: File[]) {
 
@@ -90,8 +88,25 @@ export class UploadFilesComponent implements OnInit {
       this.files.push(file) // adicionar na lista
 
       try {
+
+        const fileNameRegex = /^(\d{2})-(0[1-9]|1[0-2])-(\d{4})-(M|PLR|13Adiantamento|13Integral|Ferias)-(\d+)-.+\.pdf$/;
+
+        const codigoDoArquivo = file.name.match(fileNameRegex)
+
+        if (!codigoDoArquivo) {
+          throw new Error(`Nome de arquivo inválido: ${file.name}`);
+        }
+
+        const codEmpresa = codigoDoArquivo[1]
+        const mes = codigoDoArquivo[2]
+        const ano = codigoDoArquivo[3]
+        const tipo = codigoDoArquivo[4]
+        const codFuncionario = codigoDoArquivo[5]
+        
         // Criar uma referência no storage
-        const fileRef = ref(this.storage, file.name);
+        const caminhoStorage = `empresas/${codEmpresa}/funcionarios/${codFuncionario}/${file.name}`;
+        
+        const fileRef = ref(this.storage, caminhoStorage);
 
         // Fazer o upload com acompanhamento de progresso
         const task = uploadBytesResumable(fileRef, file);
